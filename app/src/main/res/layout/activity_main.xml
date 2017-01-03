@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv_current_feeding"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:text="当前开始喂奶时间：--"
+        android:textSize="18sp"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/tv_current_past"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="18sp"
+        android:text="当前已喂奶时间：--"
+        android:layout_below="@+id/tv_current_feeding"
+        android:layout_alignStart="@+id/tv_current_feeding" />
+
+    <View
+        android:id="@+id/divider1"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/tv_current_past"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/tv_diff_last"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="距离上次结束喂奶时间：--"
+        android:textSize="18sp"
+        android:layout_below="@+id/divider1"
+        android:layout_alignStart="@+id/tv_last_feeding" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/tv_diff_last"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/tv_last_feeding"
+        android:text="上次喂奶时间：--"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="18sp"
+        android:layout_below="@+id/divider2"
+        android:layout_alignStart="@+id/tv_current_feeding" />
+
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/tv_last_feeding"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="开始喂奶"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:id="@+id/btn_start_feeding"
+        android:textSize="18sp"
+        android:layout_above="@+id/btn_end_feeding"
+        android:layout_alignStart="@+id/btn_end_feeding"
+        android:background="@android:color/holo_green_light" />
+
+    <Button
+        android:text="结束喂奶"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:id="@+id/btn_end_feeding"
+        android:layout_marginEnd="20dp"
+        android:textSize="18sp"
+        android:background="@android:color/holo_orange_light"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
+
+    <Switch
+        android:id="@+id/switch_music"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_above="@id/btn_start_feeding"
+        android:layout_alignEnd="@id/btn_start_feeding" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:text="音乐"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/switch_music"
+        android:layout_alignEnd="@id/switch_music"
+        android:layout_marginTop="10dp"
+        android:textSize="18sp" />
+
+    <ListView
+        android:id="@+id/lv_history"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/divider3"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_alignStart="@+id/tv_last_feeding"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/btn_start_feeding" />
+
+</RelativeLayout>
