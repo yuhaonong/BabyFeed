@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
     private Handler mHandler = new Handler();
     private MediaPlayer mMediaPlayer;
     private TextToSpeech mTTS;
+    private boolean mIsChineseSupported = false;
 
     private SharedPreferences mSp;
     private SharedPreferences.Editor mEditor;
@@ -143,7 +144,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         mBtnStartFeed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                speek("start feeding");
+                if (mIsChineseSupported) {
+                    speek("开始喂奶");
+                } else {
+                    speek("start feeding");
+                }
+
                 mCurStartFeeding = getCurrentDate();
                 mTVCurFeed.setText("当前开始喂奶时间：" + mCurStartFeeding);
                 updateCurFeeding();
@@ -157,7 +163,12 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         mBtnEndFeed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                speek("end feeding");
+                if (mIsChineseSupported) {
+                    speek("结束喂奶");
+                } else {
+                    speek("end feeding");
+                }
+
                 mTaskUpdateCurFeeding.cancel();
                 mCurEndFeeding = getCurrentDate();
                 mTVCurFeed.setText("当前开始喂奶时间：" + INVALID_TIME_STRING);
@@ -252,7 +263,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 String text = "距离上次结束喂奶时间：" + diffInMinutes + "分钟";
                 mTVDiffLast.setText(text);
                 if (diffInMinutes % 120 == 0 && diffInMinutes != 0) {
-                    speek((diffInMinutes / 60) + "hours passed since last feeding");
+                    if (mIsChineseSupported) {
+                        speek("距离上次喂奶已过去" + (diffInMinutes / 60) + "分钟");
+                    } else {
+                        speek((diffInMinutes / 60) + "hours passed since last feeding");
+                    }
                 }
             }
         });
@@ -292,7 +307,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 String text = "当前已喂奶时间：" + diffInMinutes + "分钟";
                 mTVCurPast.setText(text);
                 if (diffInMinutes % 5 == 0 && diffInMinutes != 0) {
-                    speek(diffInMinutes + "minutes passed");
+                    if (mIsChineseSupported) {
+                        speek("您已喂奶" + diffInMinutes + "分钟");
+                    } else {
+                        speek(diffInMinutes + "minutes passed");
+                    }
                 }
             }
         });
@@ -338,14 +357,19 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     @Override
     public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-            //Toast.makeText(this, "tts init success :)", Toast.LENGTH_LONG).show();
-            //mTTS.setLanguage(Locale.CHINA);
-            mTTS.setLanguage(Locale.US);
-            //mTTS.setSpeechRate(0.7f);
-            //mTTS.setPitch(0.8f);
-        } else {
+        if (status != TextToSpeech.SUCCESS) {
             Toast.makeText(this, "tts init failed :(", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (mTTS.isLanguageAvailable(Locale.CHINESE) >= 0) {
+            mTTS.setLanguage(Locale.CHINESE);
+            mIsChineseSupported = true;
+        } else {
+            Toast.makeText(this, "您的手机默认不支持中文语音播报，如需中文播报请安装讯飞语音",
+                    Toast.LENGTH_LONG).show();
+            mTTS.setLanguage(Locale.US);
+            mIsChineseSupported = false;
         }
     }
 
@@ -362,7 +386,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     private boolean isGoodToSpeek() {
         int hours = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        Log.i(TAG, "hours: " + hours);
         return hours > 8 && hours < 22;
     }
 }
