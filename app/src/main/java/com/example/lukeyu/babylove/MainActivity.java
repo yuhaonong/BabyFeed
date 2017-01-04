@@ -26,8 +26,6 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -110,19 +108,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
         // music switch
         mMusicSwitch = (Switch) findViewById(R.id.switch_music);
-        //mMusicSwitch.setChecked(false);
         mMusicSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    if (!mMediaPlayer.isPlaying()) {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mMediaPlayer.start();
-                            }
-                        }).start();
-                    }
+                    startMusicAsync();
                 } else {
                     if (mMediaPlayer.isPlaying()) {
                         mMediaPlayer.pause();
@@ -145,9 +135,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             @Override
             public void onClick(View view) {
                 if (mIsChineseSupported) {
-                    speek("开始喂奶");
+                    speek("开始喂奶", true);
                 } else {
-                    speek("start feeding");
+                    speek("start feeding", true);
                 }
 
                 mCurStartFeeding = getCurrentDate();
@@ -156,7 +146,10 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
                 mBtnStartFeed.setEnabled(false);
                 mBtnEndFeed.setEnabled(true);
-                mMusicSwitch.setChecked(true);
+
+                if (!isNight()) {
+                    mMusicSwitch.setChecked(true);
+                }
             }
         });
 
@@ -164,9 +157,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             @Override
             public void onClick(View view) {
                 if (mIsChineseSupported) {
-                    speek("结束喂奶");
+                    speek("结束喂奶", true);
                 } else {
-                    speek("end feeding");
+                    speek("end feeding", true);
                 }
 
                 mTaskUpdateCurFeeding.cancel();
@@ -264,9 +257,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 mTVDiffLast.setText(text);
                 if (diffInMinutes % 120 == 0 && diffInMinutes != 0) {
                     if (mIsChineseSupported) {
-                        speek("距离上次喂奶已过去" + (diffInMinutes / 60) + "分钟");
+                        speek("距离上次喂奶已过去" + (diffInMinutes / 60) + "分钟", false);
                     } else {
-                        speek((diffInMinutes / 60) + "hours passed since last feeding");
+                        speek((diffInMinutes / 60) + "hours passed since last feeding", false);
                     }
                 }
             }
@@ -307,10 +300,14 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
                 String text = "当前已喂奶时间：" + diffInMinutes + "分钟";
                 mTVCurPast.setText(text);
                 if (diffInMinutes % 5 == 0 && diffInMinutes != 0) {
+                    if (isNight() && diffInMinutes > 30) {
+                        return;
+                    }
+
                     if (mIsChineseSupported) {
-                        speek("您已喂奶" + diffInMinutes + "分钟");
+                        speek("您已喂奶" + diffInMinutes + "分钟", true);
                     } else {
-                        speek(diffInMinutes + "minutes passed");
+                        speek(diffInMinutes + "minutes passed", true);
                     }
                 }
             }
@@ -362,19 +359,31 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             return;
         }
 
-        if (mTTS.isLanguageAvailable(Locale.CHINESE) >= 0) {
-            mTTS.setLanguage(Locale.CHINESE);
-            mIsChineseSupported = true;
-        } else {
-            Toast.makeText(this, "您的手机默认不支持中文语音播报，如需中文播报请安装讯飞语音",
-                    Toast.LENGTH_LONG).show();
+//        if (mTTS.isLanguageAvailable(Locale.CHINESE) >= 0) {
+//            mTTS.setLanguage(Locale.CHINESE);
+//            mIsChineseSupported = true;
+//        } else {
+//            Toast.makeText(this, "您的手机默认不支持中文语音播报，如需中文播报请安装并开启讯飞语音",
+//                    Toast.LENGTH_LONG).show();
             mTTS.setLanguage(Locale.US);
             mIsChineseSupported = false;
+//        }
+    }
+
+    private void startMusicAsync() {
+        if (!mMediaPlayer.isPlaying()) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    mMediaPlayer.start();
+                }
+            }).start();
         }
     }
 
-    private void speek(String text) {
-        if (!isGoodToSpeek()) return;
+    private void speek(String text, boolean forceOn) {
+        if (isNight() && !forceOn) return;
+
         Log.i(TAG, "speeking: " + text);
 
         if (Build.VERSION.SDK_INT > 20) {
@@ -384,8 +393,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         }
     }
 
-    private boolean isGoodToSpeek() {
+    private boolean isNight() {
         int hours = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        return hours > 8 && hours < 22;
+        return hours < 8 || hours > 22;
     }
 }
